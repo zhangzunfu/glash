@@ -165,6 +165,29 @@ update_secret() {
     log_info "✅ secret 已更新"
 }
 
+# 更新配置文件中的 allow-lan
+update_allow_lan() {
+    local config="$1"
+    local allow_lan="$2"
+
+    if [ -z "${allow_lan}" ]; then
+        return 0
+    fi
+
+    log_info "🔗 正在更新配置文件中的 allow-lan..."
+
+    # 检查配置文件中是否已有 allow-lan 字段
+    if grep -qE "^allow-lan:" "${config}"; then
+        # 替换现有的 allow-lan
+        sed -i "s/^allow-lan:.*$/allow-lan: ${allow_lan}/" "${config}"
+    else
+        # 在文件开头添加
+        sed -i "1i allow-lan: ${allow_lan}" "${config}"
+    fi
+
+    log_info "✅ allow-lan 已更新为 ${allow_lan}"
+}
+
 # 确保 external-controller 配置正确
 ensure_external_controller() {
     local config="$1"
@@ -236,6 +259,11 @@ update_subscription() {
         if [ -n "${SECRET}" ]; then
             update_secret "${CONFIG_FILE}" "${SECRET}"
         fi
+
+        # 更新 allow-lan
+        if [ -n "${ALLOW_LAN}" ]; then
+            update_allow_lan "${CONFIG_FILE}" "${ALLOW_LAN}"
+        fi
         
         # 确保 external-controller 配置正确
         ensure_external_controller "${CONFIG_FILE}"
@@ -274,6 +302,7 @@ SCRIPT
 # 订阅更新定时任务
 SUB_URL=${SUB_URL}
 SECRET=${SECRET}
+ALLOW_LAN=${ALLOW_LAN}
 ${cron_schedule} /app/update_sub.sh >> /var/log/subscription.log 2>&1
 EOF
     
@@ -308,6 +337,7 @@ SUB_URL=$(echo "${SUB_URL}" | sed "s/^['\"]//;s/['\"]$//")
 SECRET=$(echo "${SECRET}" | sed "s/^['\"]//;s/['\"]$//")
 SUB_CRON=$(echo "${SUB_CRON}" | sed "s/^['\"]//;s/['\"]$//")
 DOWNLOAD_PROXY=$(echo "${DOWNLOAD_PROXY}" | sed "s/^['\"]//;s/['\"]$//")
+ALLOW_LAN=$(echo "${ALLOW_LAN}" | sed "s/^['\"]//;s/['\"]$//")
 
 # 确保配置目录存在
 mkdir -p "${CONFIG_DIR}"
@@ -344,6 +374,10 @@ if [ -n "${SUB_URL}" ]; then
             # 更新 secret（如果设置了 SECRET 环境变量）
             if [ -n "${SECRET}" ]; then
                 update_secret "${CONFIG_FILE}" "${SECRET}"
+            fi
+            # 更新 allow-lan（如果设置了 ALLOW_LAN 环境变量）
+            if [ -n "${ALLOW_LAN}" ]; then
+                update_allow_lan "${CONFIG_FILE}" "${ALLOW_LAN}"
             fi
             ensure_external_controller "${CONFIG_FILE}"
             
@@ -385,6 +419,10 @@ if [ -n "${SUB_URL}" ]; then
         if [ -n "${SECRET}" ]; then
             update_secret "${CONFIG_FILE}" "${SECRET}"
         fi
+        # 更新 allow-lan（如果设置了 ALLOW_LAN 环境变量）
+        if [ -n "${ALLOW_LAN}" ]; then
+            update_allow_lan "${CONFIG_FILE}" "${ALLOW_LAN}"
+        fi
         ensure_external_controller "${CONFIG_FILE}"
         
         # 启动或重启 mihomo
@@ -422,6 +460,11 @@ if [ -n "${SUB_URL}" ]; then
             update_secret "${CONFIG_FILE}" "${SECRET}"
         fi
         
+        # 更新 allow-lan（如果设置了 ALLOW_LAN 环境变量）
+        if [ -n "${ALLOW_LAN}" ]; then
+            update_allow_lan "${CONFIG_FILE}" "${ALLOW_LAN}"
+        fi
+        
         # 确保 external-controller 配置正确
         ensure_external_controller "${CONFIG_FILE}"
         
@@ -442,6 +485,11 @@ else
     # 更新 secret（如果设置了 SECRET 环境变量）
     if [ -n "${SECRET}" ]; then
         update_secret "${CONFIG_FILE}" "${SECRET}"
+    fi
+    
+    # 更新 allow-lan（如果设置了 ALLOW_LAN 环境变量）
+    if [ -n "${ALLOW_LAN}" ]; then
+        update_allow_lan "${CONFIG_FILE}" "${ALLOW_LAN}"
     fi
     
     # 确保 external-controller 配置正确
