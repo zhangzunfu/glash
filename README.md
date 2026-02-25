@@ -130,6 +130,7 @@ docker pull --platform linux/arm64 gangz1o/glash:latest
 | `SUB_URL`        | 订阅地址，支持返回 Clash 配置的链接  | `https://example.com/sub` |
 | `SUB_CRON`       | 自动更新的 cron 表达式               | `0 */6 * * *`             |
 | `SECRET`         | Dashboard 登录密钥，会自动注入配置   | `my-password`             |
+| `ALLOW_LAN`      | 是否允许局域网连接，默认不修改配置   | `true` 或 `false`         |
 | `DOWNLOAD_PROXY` | 首次下载订阅时使用的外部代理（可选） | `http://192.168.1.1:7890` |
 
 ### 工作逻辑
@@ -153,6 +154,10 @@ docker pull --platform linux/arm64 gangz1o/glash:latest
 4. **SECRET 注入**：
    - 如果设置了 `SECRET`，会自动写入配置文件的 `secret` 字段
    - 方便统一管理 Dashboard 密码
+
+5. **ALLOW_LAN 注入**：
+   - 如果设置了 `ALLOW_LAN`，会自动写入配置文件的 `allow-lan` 字段
+   - 设置为 `true` 允许局域网连接，`false` 禁止
 
 > **提示**：如果订阅地址需要代理访问且本地没有配置文件，请设置 `DOWNLOAD_PROXY` 指向一个可用的代理。
 
