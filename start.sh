@@ -137,6 +137,25 @@ download_subscription() {
     return 1
 }
 
+# 原地替换文件内容（使用临时文件 + cp，保留 inode，避免 "resource busy" 错误）
+sed_inplace() {
+    local expr="$1"
+    local file="$2"
+    local temp_file
+    if ! temp_file=$(mktemp); then
+        log_error "❌ 无法创建临时文件"
+        return 1
+    fi
+    if sed "${expr}" "${file}" > "${temp_file}"; then
+        cp "${temp_file}" "${file}"
+    else
+        log_error "❌ sed 执行失败，配置文件未修改"
+        rm -f "${temp_file}"
+        return 1
+    fi
+    rm -f "${temp_file}"
+}
+
 # 更新配置文件中的 secret
 update_secret() {
     local config="$1"
@@ -151,14 +170,14 @@ update_secret() {
     # 检查配置文件中是否已有 secret 字段
     if grep -qE "^secret:" "${config}"; then
         # 替换现有的 secret
-        sed -i "s/^secret:.*$/secret: '${secret}'/" "${config}"
+        sed_inplace "s/^secret:.*$/secret: '${secret}'/" "${config}"
     else
         # 在 external-controller 后面添加 secret
         if grep -qE "^external-controller:" "${config}"; then
-            sed -i "/^external-controller:/a secret: '${secret}'" "${config}"
+            sed_inplace "/^external-controller:/a secret: '${secret}'" "${config}"
         else
             # 如果没有 external-controller，直接在文件开头添加
-            sed -i "1i secret: '${secret}'" "${config}"
+            sed_inplace "1i secret: '${secret}'" "${config}"
         fi
     fi
     
@@ -179,10 +198,10 @@ update_allow_lan() {
     # 检查配置文件中是否已有 allow-lan 字段
     if grep -qE "^allow-lan:" "${config}"; then
         # 替换现有的 allow-lan
-        sed -i "s/^allow-lan:.*$/allow-lan: ${allow_lan}/" "${config}"
+        sed_inplace "s/^allow-lan:.*$/allow-lan: ${allow_lan}/" "${config}"
     else
         # 在文件开头添加
-        sed -i "1i allow-lan: ${allow_lan}" "${config}"
+        sed_inplace "1i allow-lan: ${allow_lan}" "${config}"
     fi
 
     log_info "✅ allow-lan 已更新为 ${allow_lan}"
@@ -198,11 +217,11 @@ ensure_external_controller() {
         # 已存在，检查值是否为默认值，不是则修正
         if ! grep -qE "^external-controller: ${default_pattern}$" "${config}"; then
             log_info "🔗 修正 external-controller 配置为默认值..."
-            sed -i "s/^external-controller:.*$/external-controller: ${default_value}/" "${config}"
+            sed_inplace "s/^external-controller:.*$/external-controller: ${default_value}/" "${config}"
         fi
     else
         log_info "🔗 添加 external-controller 配置..."
-        sed -i "1i external-controller: ${default_value}" "${config}"
+        sed_inplace "1i external-controller: ${default_value}" "${config}"
     fi
 }
 
