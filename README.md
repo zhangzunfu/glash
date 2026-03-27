@@ -1,4 +1,4 @@
-# glash介绍
+# Clash for Docker介绍
 
 🚀 基于最新 **Mihomo** 内核，内置 Dashboard 的 Clash Docker 镜像
 
@@ -29,7 +29,7 @@
 
 ## 快速开始
 
-glash 支持两种使用模式：**订阅模式**（推荐）和**本地配置模式**。
+ Clash for Docker 支持两种使用模式：**订阅模式**（推荐）和**本地配置模式**。
 
 ### 模式一：订阅模式（推荐）
 
