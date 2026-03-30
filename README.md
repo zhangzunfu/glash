@@ -252,6 +252,9 @@ rules:
 ![zDENCwikV4ZKAxrBwPjKsj3MXUYTpxiR.webp](https://cdn.nodeimage.com/i/zDENCwikV4ZKAxrBwPjKsj3MXUYTpxiR.webp)
 ![gvdOcbUtUASmKtlfKY7crcokkIQYY0nM.webp](https://cdn.nodeimage.com/i/gvdOcbUtUASmKtlfKY7crcokkIQYY0nM.webp)
 
+## 贡献与支持
+如果你有好的需求或者发现了一些Bug, 欢迎PR，一起共建开源生态
+
 ### 一些可用docker加速源
 
 ```bash
@@ -273,7 +276,7 @@ https://docker.apiba.cn
 ## 版本信息
 
 - **Mihomo**: v1.19.21
-- **MetacubexD**: v1.243.0
+- **MetacubexD**: v1.243.2
 - **架构**: linux/amd64, linux/arm64
 
 ## 致谢
